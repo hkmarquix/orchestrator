@@ -1,0 +1,8 @@
+Revise the sprint contract in rfc_spec.md based on evaluator feedback
+  from rfc_review.md
+  Rules:
+  * Fix ALL issues
+  * Keep scope minimal
+  * Keep everything testable
+
+Rewrite the whole spec

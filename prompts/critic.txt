@@ -1,0 +1,9 @@
+as a development tech lead, please take a look to rfc_spec.md
+  Task: Review the proposed sprint contract.
+  Rules:
+  * Reject anything vague or untestable
+  * Ensure API, UX, validation, and error handling are covered
+  * Improve success criteria to be strictly testable
+  Output:
+  [Issues Found][Missing Requirements][Revised Success Criteria][Decision: APPROVED or
+  REJECTED] and write your result
