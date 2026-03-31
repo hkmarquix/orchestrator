@@ -163,6 +163,7 @@ TASK EXECUTION RULES
 - If you are the critic, output ONLY the full content of rfc_review.md.
 - If you are the judge, output ONLY the full content of rfc_judge.md.
 - Do not add any explanation or commentary outside the file content.
+- Do NOT write to any files. Output the file content directly in your response only.
 """
 
 

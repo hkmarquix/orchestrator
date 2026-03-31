@@ -1,146 +1,126 @@
-## Sprint Contract: Simple Python Hello World Program
+# RFC Spec: Simple Python Hello World Program
 
-### Objective
+## 1. Summary
 
-Provide one minimal Python CLI example that lets a user verify that Python is
-installed correctly and that a script can be run from the command line.
+Add one beginner-friendly Python script that prints `Hello, world!` to standard
+output and can be run directly from the command line with Python 3.9+.
 
-### In Scope
+## 2. Objective
 
-- Add one file named `hello.py` at the repository root.
-- Implement a single command-line program that prints `Hello, world!` followed
-  by a newline.
-- Ensure the program is runnable with `python3 hello.py` from the directory
-  containing `hello.py`.
+Provide the smallest possible end-to-end example in the repository so a new user
+can confirm that:
 
-### Out of Scope
+- Python is installed correctly
+- a `.py` file can be executed from the command line
+- the observed output matches the expected result exactly
 
-- Any file other than `hello.py`
+## 3. In Scope
+
+This sprint includes only:
+
+- one file named `hello.py`
+- code that prints exactly `Hello, world!` followed by a newline
+- documentation in the repository, if needed, limited to the single execution
+  command for this script
+
+## 4. Out of Scope
+
+This sprint does not include:
+
+- command-line arguments
+- interactive input
+- multiple source files
+- external dependencies
+- packaging or publishing
+- containers
+- logging
+- configuration
+- test frameworks
 - GUI behavior
-- Command-line argument parsing
-- Interactive input
-- Configuration files or configuration loading
-- Environment-variable-dependent behavior
-- Logging, banners, prompts, or extra console text
-- Packaging, publishing, containerization, installation scripts, or virtual
-  environment setup
-- Third-party dependencies
+- alternate messages or localization
 
-### Deliverable
+## 5. Requirements
+
+### Functional Requirements
+
+1. The repository must contain a single-file Python program at `hello.py`.
+2. Running `python3 hello.py` must write exactly `Hello, world!` and a trailing
+   newline to standard output.
+3. The program must not require any external package installation.
+4. The script must complete successfully with exit code `0` under Python 3.9+.
+
+### Non-Functional Requirements
+
+1. The implementation must be understandable to a beginner.
+2. The file must remain minimal and avoid unnecessary structure.
+3. The implementation must use only the Python standard runtime.
+
+## 6. Proposed Implementation
+
+Create `hello.py` with a single print statement:
+
+```python
+print("Hello, world!")
+```
+
+No helper functions, classes, imports, or argument parsing are required.
+
+## 7. Acceptance Criteria
 
 The sprint is complete only if all of the following are true:
 
-1. A file named `hello.py` exists at the repository root.
-2. `hello.py` is sufficient on its own to satisfy this contract.
-3. No additional files are added or required for execution.
+1. `hello.py` exists at the repository root.
+2. The file runs with `python3 hello.py`.
+3. Standard output is exactly:
 
-### Implementation Requirements
-
-1. The implementation must be compatible with Python 3.9 and newer.
-2. The implementation must run as a single file.
-3. The implementation must not require installation of any third-party package.
-4. The implementation may use only the Python standard library.
-5. The implementation must not import or require any third-party package.
-6. The implementation must not parse command-line arguments.
-7. The implementation must not read from standard input.
-8. The implementation must not prompt, pause, wait for user input, or open a
-   GUI.
-9. The implementation must not load configuration from files or environment
-   variables.
-10. The implementation must not print any text other than the required output.
-
-### Required CLI Behavior
-
-1. The required invocation is `python3 hello.py`.
-2. The command must be run from the directory containing `hello.py`.
-3. The program must require no flags, arguments, installation steps, packaging
-   steps, or setup steps beyond having `python3` available.
-4. Acceptance is defined only for the required invocation in item 1. Behavior
-   for any other invocation is out of scope.
-
-### Required Runtime Behavior
-
-1. On success, the process must exit with status code `0`.
-2. Standard output must be exactly `Hello, world!\n`, byte-for-byte.
-3. Standard error must be empty.
-4. Execution must complete without reading from standard input.
-5. Execution must complete without prompts, banners, logging lines, warnings,
-   or tracebacks.
-
-### Acceptance Preconditions
-
-Acceptance testing applies only if the following precondition is met:
-
-1. Running `python3 --version` reports Python 3.9 or newer.
-
-### Mandatory Acceptance Test Plan
-
-Run the following commands from the repository root.
-
-1. Verify the Python version precondition:
-
-```sh
-python3 --version
+```text
+Hello, world!
 ```
 
-Pass condition: the reported version is Python 3.9 or newer.
+4. No output is written to standard error during normal execution.
+5. No external dependencies are introduced.
+6. The solution remains a single Python source file.
 
-2. Verify the exact program behavior:
+## 8. Test Plan
 
-```sh
-python3 hello.py >stdout.txt 2>stderr.txt
-status=$?
-printf '%s' "$status" >exit_code.txt
+### Manual Verification
+
+Run:
+
+```bash
+python3 hello.py
 ```
 
-Pass conditions:
+Expected result:
 
-- `exit_code.txt` contains exactly `0`
-- `stderr.txt` is empty
-- `stdout.txt` contains exactly `Hello, world!\n`
+- exit code is `0`
+- stdout equals `Hello, world!` followed by a newline
+- stderr is empty
 
-3. Verify stdout exactly:
+### Exact Output Check
 
-```sh
-python3 - <<'PY'
-from pathlib import Path
-data = Path("stdout.txt").read_bytes()
-assert data == b"Hello, world!\n", data
-PY
+Run:
+
+```bash
+python3 hello.py | python3 -c "import sys; data=sys.stdin.read(); assert data == 'Hello, world!\\n'"
 ```
 
-Pass condition: the command exits with status code `0`.
+Expected result:
 
-4. Verify stderr is empty:
+- command exits successfully with no assertion failure
 
-```sh
-python3 - <<'PY'
-from pathlib import Path
-data = Path("stderr.txt").read_bytes()
-assert data == b"", data
-PY
-```
+## 9. Risks and Mitigations
 
-Pass condition: the command exits with status code `0`.
+- Risk: output differs in capitalization or punctuation
+  Mitigation: acceptance requires exact string match
+- Risk: unnecessary complexity makes the example less useful to beginners
+  Mitigation: implementation is constrained to a single minimal file
 
-5. Verify exit code exactly:
+## 10. Definition of Done
 
-```sh
-python3 - <<'PY'
-from pathlib import Path
-data = Path("exit_code.txt").read_text()
-assert data == "0", data
-PY
-```
+The work is done when:
 
-Pass condition: the command exits with status code `0`.
-
-### Success Criteria
-
-This sprint is accepted only if all of the following are true:
-
-1. The deliverable matches the defined file name and location.
-2. The implementation stays within the stated scope boundaries.
-3. The implementation satisfies all implementation requirements.
-4. The required invocation behaves exactly as specified.
-5. Every step in the mandatory acceptance test plan passes.
+- `hello.py` is present
+- the script satisfies all acceptance criteria
+- the behavior is verified by the test plan above
+- no additional scope beyond this spec is implemented
