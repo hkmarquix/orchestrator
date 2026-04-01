@@ -1,5 +1,10 @@
 # How to Use the RFC Spec Reasoning Engine
 
+This repo has two phases:
+
+1. Produce an approved spec
+2. Implement the spec until team lead approval
+
 ## Prerequisites
 
 - Python 3.9+
@@ -160,6 +165,45 @@ Output: rfc_spec.md
 ```
 
 The loop hit the limit. Read `rfc_review.md` to see what issues the critic still has. Either increase `--rounds`, fix `rfc_input.md` with more context, or accept the current `rfc_spec.md` as-is.
+
+---
+
+## Step 6 — Run the implementation loop
+
+Once `rfc_spec.md` is approved, start coding:
+
+```bash
+python3 implementation_orchestrator.py
+python3 implementation_orchestrator.py --rounds 5
+```
+
+Loop:
+
+```text
+Senior Dev → Team Lead Review → Senior Dev (fix) → ... → Handoff
+```
+
+Behavior:
+- The senior dev edits the codebase to match `rfc_spec.md`
+- The senior dev writes `implementation_report.md`
+- The team lead reviews the actual code and writes `code_review.md`
+- The loop continues until the team lead writes `APPROVED`
+- After approval, the senior dev writes `handoff_report.md`
+
+Implementation artifacts:
+
+| File | Written by | What it means |
+|------|-----------|---------------|
+| `implementation_report.md` | Senior Dev | What changed, what was verified, and what risks remain |
+| `code_review.md` | Team Lead | Review findings, verification status, and approval decision |
+| `handoff_report.md` | Senior Dev | Final handoff after approval |
+
+Implementation stopping conditions:
+
+| Condition | Exit code |
+|-----------|-----------|
+| Team lead issues `APPROVED` | 0 |
+| Max rounds reached without approval | 1 |
 
 ---
 

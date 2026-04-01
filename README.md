@@ -1,6 +1,6 @@
 # RFC Spec Reasoning Engine
 
-A multi-agent system that produces the best possible RFC / spec ticket through adversarial iteration.
+A multi-agent system that first produces a better RFC / spec ticket, then drives implementation until code review approval and handoff.
 
 Inspired by the Eight Fortune Reasoning Engine — same loop, applied to software engineering.
 
@@ -8,7 +8,14 @@ Inspired by the Eight Fortune Reasoning Engine — same loop, applied to softwar
 
 ## What It Does
 
-Instead of writing an RFC once and hoping it's good, this system runs a self-correcting loop:
+Instead of writing an RFC once and hoping it's good, this repo supports two delivery phases:
+
+1. Spec refinement
+2. Implementation delivery
+
+### Phase 1: Spec refinement
+
+This phase runs a self-correcting loop:
 
 ```
 Generator → Critic → [Judge] → Generator (fix) → repeat
@@ -18,6 +25,19 @@ Generator → Critic → [Judge] → Generator (fix) → repeat
 2. **Critic** — audits the RFC for vague requirements, missing reasoning, untestable criteria, scope gaps, and more
 3. **Judge** *(optional)* — arbitrates between the critic and generator, filters overcritical feedback, issues precise fix instructions
 4. Repeat until the critic approves, the judge accepts, or max rounds is reached
+
+### Phase 2: Implementation delivery
+
+After the spec is approved, a second loop drives coding work:
+
+```
+Senior Dev → Team Lead Review → Senior Dev (fix) → repeat → Handoff
+```
+
+1. **Senior Dev** — implements the approved spec directly in the codebase and writes `implementation_report.md`
+2. **Team Lead** — reviews the actual code, verifies behavior against the spec, and writes `code_review.md`
+3. Repeat until the team lead issues `APPROVED`
+4. **Senior Dev** writes `handoff_report.md` after approval
 
 ---
 
@@ -39,16 +59,23 @@ The system enforces:
 ## Project Structure
 
 ```
-programming/
-├── orchestrator.py        # Main loop
-├── rfc_input.md           # Your input — fill this in
-├── rfc_spec.md            # Generator output (RFC draft)
-├── rfc_review.md          # Critic output (issues found)
-├── rfc_judge.md           # Judge output (verdicts + fix instructions)
+.
+├── orchestrator.py                 # Spec refinement loop
+├── implementation_orchestrator.py  # Coding / review / handoff loop
+├── rfc_input.md                    # Input for RFC generation
+├── rfc_spec.md                     # Approved spec
+├── rfc_review.md                   # Spec critic output
+├── rfc_judge.md                    # Spec judge output
+├── implementation_report.md        # Senior dev status report
+├── code_review.md                  # Team lead review and approval
+├── handoff_report.md               # Final handoff after approval
 └── prompts/
-    ├── generator.txt      # RFC Spec Writer prompt
-    ├── critic.txt         # RFC Auditor prompt
-    └── judge.txt          # Convergence Controller prompt
+    ├── generator.txt
+    ├── critic.txt
+    ├── judge.txt
+    ├── senior_dev.txt
+    ├── team_lead.txt
+    └── handoff.txt
 ```
 
 ---
@@ -95,6 +122,10 @@ export CODEX_MODEL='gpt-5.4'
 python3 orchestrator.py               # with judge
 python3 orchestrator.py --no-judge    # without judge
 python3 orchestrator.py --rounds 5    # more iterations
+
+# 4. After the spec is approved, implement it
+python3 implementation_orchestrator.py
+python3 implementation_orchestrator.py --rounds 5
 ```
 
 ---
@@ -106,6 +137,9 @@ python3 orchestrator.py --rounds 5    # more iterations
 | Generator | Produce and revise the RFC | `rfc_spec.md` |
 | Critic | Find every flaw — default stance is distrust | `rfc_review.md` |
 | Judge | Arbitrate, filter noise, issue fix instructions | `rfc_judge.md` |
+| Senior Dev | Implement the approved spec in code | `implementation_report.md` |
+| Team Lead | Review code and verify it works against the spec | `code_review.md` |
+| Senior Dev (handoff) | Write the final implementation handoff | `handoff_report.md` |
 
 ### What the Critic checks
 
@@ -132,6 +166,13 @@ python3 orchestrator.py --rounds 5    # more iterations
 | Judge issues `SOFT_ACCEPT` | 0 |
 | Judge issues `HARD_REJECT` | 1 |
 | Max rounds reached | 0 |
+
+### Implementation phase
+
+| Condition | Exit code |
+|-----------|-----------|
+| Team lead issues `APPROVED` | 0 |
+| Max rounds reached without approval | 1 |
 
 ---
 
