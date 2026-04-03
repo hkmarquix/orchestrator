@@ -373,6 +373,12 @@ def parse_args() -> argparse.Namespace:
         metavar="N",
         help=f"Maximum number of review rounds (default: {DEFAULT_MAX_ROUNDS})",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        default=False,
+        help=f"Resume from last critic",
+    )
     return parser.parse_args()
 
 
@@ -380,6 +386,7 @@ def main() -> int:
     args = parse_args()
     use_judge = not args.no_judge
     max_rounds = args.rounds
+    resume = args.resume
 
     ensure_files_exist(use_judge)
 
@@ -390,15 +397,18 @@ def main() -> int:
     print(f"Max rounds: {max_rounds}")
     print()
 
-    print("[Init] Clearing previous outputs...")
-    write_text(SPEC_FILE, "")
-    write_text(REVIEW_FILE, "")
-    if use_judge:
-        write_text(JUDGE_FILE, "")
+    if resume:
+        print("[Init] Resuming from existing outputs...")
+    else:
+        print("[Init] Clearing previous outputs...")
+        write_text(SPEC_FILE, "")
+        write_text(REVIEW_FILE, "")
+        if use_judge:
+            write_text(JUDGE_FILE, "")
 
-    print("[Round 0] Running generator (initial draft)...")
-    run_generator(use_judge)
-    print("  → rfc_spec.md written")
+        print("[Round 0] Running generator (initial draft)...")
+        run_generator(use_judge)
+        print("  → rfc_spec.md written")
 
     for round_number in range(1, max_rounds + 1):
         print(f"\n[Round {round_number}] Running critic...")
